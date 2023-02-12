@@ -12,7 +12,8 @@ struct Registro { // registro com os campos a serem lidos da base de dados
     // os vetores de char sempre serão inicializados completos por caracteres nulos
 };
 
-long long int contarTodosRegistros (Registro reg[]) {
+
+long long int contarTodosRegistros () {
     long long int cont = 0;
     ifstream ler ("CSV.bin"); // abre o arquivo binario para leitura
     ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
@@ -69,20 +70,76 @@ void mergesort(Registro a[], long long int inicio, long long int fim){
 	}
 }
 
-int main(){
-    long long int fim;;
+void FazerVetor(){
+	string converter;
+	ifstream ler("CSV.bin"); // abre o arquivo binario para leitura
+    ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
+    long long int tam_bytes = ler.tellg (); // recebe o número de bytes do arquivo
+    long long int qntdCadastrados = (tam_bytes / sizeof (Registro));
+    Registro novoRegistro[10];
     long long int inicio = 0;
-    cout << fim <<  endl;
-    Registro a[fim];
-    fim = contarTodosRegistros(a);
-    mergesort(a,inicio,fim);
-    for(long long int i=0;i < fim;i++){
-        cout << "Anzsic06: " << a[i].anzsic06
-             << "Area: " << a[i].Area
-             << "Ano: " << a[i].ano
-             << "Geo_count: " << a[i].geo_count
-             << "Ec_count: " << a[i].ec_count
-             << endl;
+    // divide o tamanho do arquivo pelo tamanho da estrutura Registro para saber o número de registros no arquivo
+    ler.seekg (0, ler.beg); // retorna a cabeça de leitura para o início
+    if (ler) {
+		unsigned i = 0;
+        for (long long int j = 0; j < 10; j++) { // enquanto for possível ler, a variável "registro" recebe um registro lido do arquivo
+            ler.read ((char*)(&novoRegistro), sizeof (Registro));
+            ler >> converter;
+            cout << converter << endl;
+            unsigned cont = 0;
+            cout << converter.size() << endl;
+			while (cont < 5 and cont < converter.size()) {
+				novoRegistro[i].anzsic06[cont] = converter[cont];
+				cont++;
+			}
+			cont = 0;
+			while (cont < 7 and cont < converter.size()) {
+				novoRegistro[i].Area[cont] = converter[cont];
+				cont++;
+			}
+			cont = 0;
+			while (cont < 7 and cont < converter.size()) {
+				novoRegistro[i].ano[cont] = converter[cont];
+				cont++;
+			}
+			cont = 0;
+			while (cont < 7 and cont < converter.size()) {
+				novoRegistro[i].geo_count[cont] = converter[cont];
+				cont++;
+			}
+			cont = 0;
+			while (cont < 7 and cont < converter.size()) {
+				novoRegistro[i].ec_count[cont] = converter[cont];
+				cont++;
+			}
+            cont++;
+        i++;
+        }
     }
+    else {
+        ler.close (); // fechamento da função de leitura
+    }
+    //mergesort(novoRegistro, inicio, 100);
+    for(long long int j=0; j < 10; j++){
+        for (int i = 0; i < 5; i++)
+            cout <<  novoRegistro[j].anzsic06 [i];
+        cout << ",";
+        for (int i = 0; i < 7; i++)
+            cout << novoRegistro[j].Area [i];
+        cout << ",";
+        for (int i = 0; i < 7; i++)
+            cout << novoRegistro[j].ano [i];
+        cout << ",";
+        for (int i = 0; i < 7; i++)
+            cout << novoRegistro[j].geo_count [i];
+        cout << ",";
+        for (int i = 0; i < 7; i++)
+            cout << novoRegistro[j].ec_count [i];
+        cout << endl;
+    }                  
+}
+
+int main(){
+    FazerVetor();
     return 0;
 }
