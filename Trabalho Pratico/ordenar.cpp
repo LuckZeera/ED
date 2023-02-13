@@ -12,116 +12,125 @@ struct Registro { // registro com os campos a serem lidos da base de dados
     // os vetores de char sempre serão inicializados completos por caracteres nulos
 };
 
-/*void intercala(Registro a[], int inicio, int meio, int fim) {
-	int i = inicio, j = meio+1;
-	int tamanho = fim - inicio + 1;
-	Registro aux[tamanho]; // vetor auxiliar
-	for (int k=0; k < tamanho; k++) {
-		if ((i <= meio) and (j <= fim)){ 
-			if (strcmp(a[i].Area[0],a[j].Area[0])){ 
-				aux[k] = a[i]; // copia trecho1 em aux[]
-				i++; 			// avança em trecho1
-			}else { // 
-				aux[k] = a[j]; // copia trecho2 em aux[]
-				j++;	 		// avanca em trecho2
- 			    }
-            }
-            else if(i > meio) { // terminou o trecho1	
-			    aux[k] = a[j];
-			    j++;
-		    }else { 				 // terminou o trecho2
-			    aux[k] = a[i];
-			    i++;
-		}		
-	}	
-	// terminando: copiar de aux[] em a[inicio:fim]
-	for (int k=0; k < tamanho; k++){ 
-		a[inicio + k] = aux[k];
-	}
-}*/
-
-void intercala(Registro v[], long long int p,long long int q,long long int r){
-    long long int i = p, j = q;
-    long long int tamanho = r - p + 1;
-    Registro w[tamanho]; // vetor auxiliar
-    int k = 0;
-    int cont = 0;
-    while ((i < q) and (j <= r)) {                
-       if (strcmp(v[i].Area,v[j].Area))  {
-           w[k++] = v[i++]; /* w[k] = v[i]; k++; i++; */
-		} else  {
-			w[k++] = v[j++]; /* w[k] = v[j]; k++; j++; */
-		}
-	} 
-// terminou um dos vetores, agora copia o outro                          
-    while (i < q) {
-        w[k++] = v[i++];
-    }   
-    while (j <= r) {
-       w[k++] = v[j++]; 
-    }
-    // agora copiamos do vetor auxiliar aux[] em v[p:r]
-	for (int m = 0; m < tamanho; m++){ 
-		v[p + m] = w[m];
-    }
+void inverterPosicoes () {
+    Registro registro1, registro2;
+    fstream receber1, receber2;
+    receber1.open ("CSV.bin", ios::in | ios::out | ios::ate); // declaração das funções de manipulação do arquivo binário
+    receber2.open ("CSV.bin", ios::in | ios::out | ios::ate);
+    int pos1, pos2;
+    cout << "Posicao de um registro: ";
+    cin >> pos1;
+    cout << "Posicao de outro registro: ";
+    cin >> pos2;
+    // posicionamento das cabeças de leitura nas posições desejadas
+    receber1.seekg (pos1 * sizeof (Registro));
+    receber2.seekg (pos2 * sizeof (Registro));
+    // leitura dos registros nas posições solicitadas
+    receber1.read ((char*)(&registro1), sizeof (Registro));
+    receber2.read ((char*)(&registro2), sizeof (Registro));
+    // posicionamento das cabeças de escrita invertendo as posições
+    receber1.seekp (pos2 * sizeof (Registro));
+    receber2.seekp (pos1 * sizeof (Registro));
+    // gravação dos registros com as posições trocadas
+    receber1.write ((const char*)(&registro1), sizeof (Registro));
+    receber2.write ((const char*)(&registro2), sizeof (Registro));
+    cout << endl << "Troca realizada!" << endl;
+    // encerramento das funções
+    receber1.close ();
+    receber2.close ();
 }
 
+// function to rearrange array (find the partition point)
+int partition(fstream &arquivo, int low, long long int high) {
 
-void mergesort(Registro a[], long long int inicio, long long int fim){
-	long long int meio;
-	if (inicio < fim) {
-		meio = (inicio + fim)/2; 
-		mergesort(a, inicio, meio);
-		mergesort(a, meio+1, fim);
-		intercala(a,inicio,meio,fim);
-	}
+  // select the rightmost element as pivot
+  arquivo.seekg(high * sizeof(Registro));
+  
+  Registro pivot;
+  arquivo.read((char*) (&pivot), sizeof(Registro));
+
+  // pointer for greater element
+  int i = (low - 1);
+  Registro aux;
+  // traverse each element of the array
+  // compare them with the pivot
+  for (int j = low; j < high; j++) {
+    arquivo.seekg(j * sizeof(Registro));
+    arquivo.read((char*)(&aux), sizeof(Registro));
+    if (string(aux.Area) <= string(pivot.Area)) {
+
+      // if element smaller than pivot is found
+      // swap it with the greater element pointed by i
+      i++;
+
+      // swap element at i with element at j
+      
+    }
+  }
+
+  // swap pivot with the greater element at i
+  inverterPosicoes();
+
+  // return the partition point
+  return (i + 1);
 }
 
-void FazerVetor(){
-	Registro converter;
-	ifstream ler("CSV.bin"); // abre o arquivo binario para leitura
+void quickSort(fstream &arquivo, int low, int high) {
+  if (low < high) {
+
+    // find the pivot element such that
+    // elements smaller than pivot are on left of pivot
+    // elements greater than pivot are on righ of pivot
+    int pi = partition(arquivo, low, high);
+
+    // recursive call on the left of pivot
+    quickSort(arquivo, low, pi - 1);
+
+    // recursive call on the right of pivot
+    quickSort(arquivo, pi + 1, high);
+  }
+}
+void depurarTodosRegistros () {
+    ifstream ler ("CSV.bin"); // abre o arquivo binario para leitura
     ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
     long long int tam_bytes = ler.tellg (); // recebe o número de bytes do arquivo
-    long long int qntdCadastrados = (tam_bytes / sizeof (Registro));
-    Registro novoRegistro[150];
-    long long int inicio = 0;
+    long long int qntdCadastrados = (tam_bytes / sizeof (Registro)); 
     // divide o tamanho do arquivo pelo tamanho da estrutura Registro para saber o número de registros no arquivo
-    long long int linhaInicio = 2000000;
-    ler.seekg ((linhaInicio) * sizeof (Registro));
+    ler.seekg (0, ler.beg); // retorna a cabeça de leitura para o início
     if (ler) {
-        for (long long int j = 0; j < 150; j++) { // enquanto for possível ler, a variável "registro" recebe um registro lido do arquivo
-            ler.read ((char*)(&converter), sizeof (Registro));
-            novoRegistro[j] = converter;
+        for (long long int j = 0; j < qntdCadastrados; j++) { // enquanto for possível ler, a variável "registro" recebe um registro lido do arquivo
+            Registro registro;
+            ler.read ((char*)(&registro), sizeof (Registro));
+            // a cada registro lido são depurados seus atributos
+            for (int i = 0; i < 5; i++)
+                cout << registro.anzsic06 [i];
+            cout << ",";
+            for (int i = 0; i < 7; i++)
+                cout << registro.Area [i];
+            cout << ",";
+            for (int i = 0; i < 7; i++)
+                cout << registro.ano [i];
+            cout << ",";
+            for (int i = 0; i < 7; i++)
+                cout << registro.geo_count [i];
+            cout << ",";
+            for (int i = 0; i < 7; i++)
+                cout << registro.ec_count [i];
+            cout << endl;
         }
     }
-    ler.close (); // fechamento da função de leitura
-    mergesort(novoRegistro, inicio, 150);
-    for(long long int j=0; j < 150; j++){
-        cout << j << " ";
-        int length = sizeof(novoRegistro[j].anzsic06)/sizeof(char);
-        for (int i = 0; i < length; i++)
-            cout <<  novoRegistro[j].anzsic06 [i];
-        cout << ",";
-        length = sizeof(novoRegistro[j].Area)/sizeof(char);
-        for (int i = 0; i < length; i++)
-            cout << novoRegistro[j].Area [i];
-        cout << ",";
-        length = sizeof(novoRegistro[j].ano)/sizeof(char);
-        for (int i = 0; i < length; i++)
-            cout << novoRegistro[j].ano [i];
-        cout << ",";
-        length = sizeof(novoRegistro[j].geo_count)/sizeof(char);
-        for (int i = 0; i < length; i++)
-            cout << novoRegistro[j].geo_count [i];
-        cout << ",";
-        length = sizeof(novoRegistro[j].ec_count)/sizeof(char);
-        for (int i = 0; i < length; i++)
-            cout << novoRegistro[j].ec_count [i];
-        cout << endl;
-    }             
+    else {
+        ler.close (); // fechamento da função de leitura
+    }
 }
 
+
 int main(){
-    FazerVetor();
-    return 0;
+  fstream arquivo("CSV.bin.teste", ios::in | ios::out);
+  ifstream ler("CSV.bin.teste"); // abre o arquivo binario para leitura
+  ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
+  long long int tam_bytes = ler.tellg (); // recebe o número de bytes do arquivo
+  long long int qntdCadastrados = (tam_bytes / sizeof (Registro));
+  quickSort(arquivo, 0, qntdCadastrados);
+  return 0;
 }
