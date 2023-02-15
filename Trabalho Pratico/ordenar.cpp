@@ -13,9 +13,6 @@ struct Registro { // registro com os campos a serem lidos da base de dados
 };
 
 void inverterPosicoes(long long int pos1,long long  int pos2) {
-  if(pos1 == 300000)
-    cout << 0 << endl;
-  cout << pos1 << endl;
   Registro registro1, registro2;
   fstream receber1, receber2;
   receber1.open ("CSV.bin", ios::in | ios::out | ios::ate); // declaração das funções de manipulação do arquivo binário
