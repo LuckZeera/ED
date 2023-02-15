@@ -13,11 +13,13 @@ struct Registro { // registro com os campos a serem lidos da base de dados
 };
 
 void inverterPosicoes(long long int pos1,long long  int pos2) {
+  if(pos1 == 300000)
+    cout << 0 << endl;
   cout << pos1 << endl;
   Registro registro1, registro2;
   fstream receber1, receber2;
-  receber1.open ("CSV.bin.teste", ios::in | ios::out | ios::ate); // declaração das funções de manipulação do arquivo binário
-  receber2.open ("CSV.bin.teste", ios::in | ios::out | ios::ate);
+  receber1.open ("CSV.bin", ios::in | ios::out | ios::ate); // declaração das funções de manipulação do arquivo binário
+  receber2.open ("CSV.bin", ios::in | ios::out | ios::ate);
   // posicionamento das cabeças de leitura nas posições desejadas
   receber1.seekg (pos1 * sizeof (Registro));
   receber2.seekg (pos2 * sizeof (Registro));
@@ -82,14 +84,14 @@ void quickSort(fstream &arquivo,long long  int low, long long int high) {
   }
 }
 void depurarTodosRegistros () {
-    ifstream ler ("CSV.bin.teste"); // abre o arquivo binario para leitura
+    ifstream ler ("CSV.bin"); // abre o arquivo binario para leitura
     ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
     long long int tam_bytes = ler.tellg (); // recebe o número de bytes do arquivo
     long long int qntdCadastrados = (tam_bytes / sizeof (Registro)); 
     // divide o tamanho do arquivo pelo tamanho da estrutura Registro para saber o número de registros no arquivo
     ler.seekg (0, ler.beg); // retorna a cabeça de leitura para o início
     if (ler) {
-        for (long long int j = 0; j < 100000; j++) { // enquanto for possível ler, a variável "registro" recebe um registro lido do arquivo
+        for (long long int j = 0; j < 300000; j++) { // enquanto for possível ler, a variável "registro" recebe um registro lido do arquivo
             Registro registro;
             ler.read ((char*)(&registro), sizeof (Registro));
             // a cada registro lido são depurados seus atributos
@@ -117,13 +119,12 @@ void depurarTodosRegistros () {
 
 
 int main(){
-  fstream arquivo("CSV.bin.teste", ios::in | ios::out);
-  ifstream ler("CSV.bin.teste"); // abre o arquivo binario para leitura
+  fstream arquivo("CSV.bin", ios::in | ios::out);
+  ifstream ler("CSV.bin"); // abre o arquivo binario para leitura
   ler.seekg (0, ler.end); // posiciona a cabeça de leitura no fim
   long long int tam_bytes = ler.tellg (); // recebe o número de bytes do arquivo
   long long int qntdCadastrados = (tam_bytes / sizeof (Registro));
-  quickSort(arquivo, 0, 100000);
+  quickSort(arquivo, 0, 300000);
   depurarTodosRegistros();
-  cout << "ACABOU" << endl;
   return 0;
 }
