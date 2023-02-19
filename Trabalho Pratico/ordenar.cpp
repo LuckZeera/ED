@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstring>
 using namespace std;
 
 struct Registro { // registro com os campos a serem lidos da base de dados
@@ -52,10 +53,21 @@ long long int particionar (fstream& arquivo, long long int menor, long long int 
         arquivo.seekg (j * sizeof (Registro));
         arquivo.read ((char*)(&aux), sizeof (Registro));
         // leitura dos outros elementos do arquivo, um a cada looping
-        if (string (aux.Area) < string (pivot.Area) or (string (aux.Area) == string (pivot.Area) and string (aux.geo_count) <= string (pivot.geo_count))) {
+        if (string (aux.Area) < string (pivot.Area)){
+            // caso a comparação atenda aos critérios de ordenação, é feita a troca de posições
+            i++;
+            inverterPosicoes(i,j);
+        }
+        else if(string(aux.Area) == string(pivot.Area)){ //comparracao caso as areas sejam iguais
+          string s = string(aux.geo_count);
+          string s1 = string(pivot.geo_count);
+          int n = stoi(s); // conversao de string para inteiro para a realizacao da comparacao
+          int n1 = stoi(s1);
+          if(n < n1){
             // caso a comparação atenda aos critérios de ordenação, é feita a troca de posições
             i++;
             inverterPosicoes (i, j);
+          }
         }
     }
     // por fim, trocamos as posições do pivô e do maior elemento
